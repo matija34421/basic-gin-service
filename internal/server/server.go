@@ -21,6 +21,10 @@ func Start() error {
 	clientService := service.NewClientService(clientRepo)
 	clientHandler := handler.NewClientHandler(clientService)
 
+	accountRepo := repository.NewAccountRepository(db.DB)
+	accountService := service.NewAccountService(accountRepo)
+	accountHandler := handler.NewAccountHandler(accountService)
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/clients", clientHandler.GetClients).Methods("GET")
@@ -28,6 +32,11 @@ func Start() error {
 	r.HandleFunc("/clients", clientHandler.CreateClient).Methods("POST")
 	r.HandleFunc("/clients", clientHandler.UpdateClient).Methods("PUT")
 	r.HandleFunc("/clients/{id}", clientHandler.DeleteClient).Methods("DELETE")
+
+	r.HandleFunc("/clients/{id}/accounts", accountHandler.GetAccountsByClientId).Methods("GET")
+	r.HandleFunc("/accounts/{id}", accountHandler.GetAccountById).Methods("GET")
+	r.HandleFunc("/accounts", accountHandler.CreateAccount).Methods("POST")
+	r.HandleFunc("/accounts", accountHandler.UpdateAccount).Methods("PUT")
 
 	port := config.AppConfig.SERVER_PORT
 	log.Printf("🚀 Server listening on port %s", port)

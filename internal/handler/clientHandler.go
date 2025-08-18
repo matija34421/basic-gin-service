@@ -22,7 +22,6 @@ func NewClientHandler(service *service.ClientService) *ClientHandler {
 }
 
 func (h *ClientHandler) GetClients(w http.ResponseWriter, r *http.Request) {
-	log.Println("Got get all clients request")
 	clients, err := h.clientService.GetClients()
 
 	if err != nil {
@@ -44,6 +43,7 @@ func (h *ClientHandler) GetClientById(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		http.Error(w, "invalid id format: "+err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	client, err := h.clientService.GetClientById(id)

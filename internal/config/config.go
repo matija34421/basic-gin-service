@@ -16,29 +16,37 @@ type Config struct {
 	DB_NAME     string
 }
 
-var AppConfig *Config
+var AppConfig Config
 
 func LoadConfig() {
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatal(".env file not found, using system environment variables")
+	if err := godotenv.Load(); err != nil {
+		log.Println(".env file not found, using system environment variables")
 	}
 
-	AppConfig = &Config{
+	pass := firstNonEmpty(os.Getenv("DB_PASS"), os.Getenv("DB_PASSWORD"))
+
+	AppConfig = Config{
 		SERVER_PORT: getEnv("SERVER_PORT", "8080"),
 		DB_PORT:     getEnv("DB_PORT", "5432"),
 		DB_HOST:     getEnv("DB_HOST", "localhost"),
-		DB_USER:     getEnv("DB_USER", ""),
-		DB_PASS:     getEnv("DB_PASSWORD", ""),
-		DB_NAME:     getEnv("DB_NAME", ""),
+		DB_USER:     getEnv("DB_USER", "postgres"),
+		DB_PASS:     pass,
+		DB_NAME:     getEnv("DB_NAME", "basic_gin"),
 	}
 }
 
 func getEnv(key, fallback string) string {
-	if v, exists := os.LookupEnv(key); exists {
+	if v := os.Getenv(key); v != "" {
 		return v
 	}
-
 	return fallback
+}
+
+func firstNonEmpty(vals ...string) string {
+	for _, v := range vals {
+		if v != "" {
+			return v
+		}
+	}
+	return ""
 }
